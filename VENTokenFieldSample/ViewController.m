@@ -35,7 +35,6 @@
     [self.tokenField resignFirstResponder];
 }
 
-
 #pragma mark - VENTokenFieldDelegate
 
 - (void)tokenField:(VENTokenField *)tokenField didEnterText:(NSString *)text
@@ -65,7 +64,7 @@
 
 - (NSString *)tokenFieldCollapsedText:(VENTokenField *)tokenField
 {
-    return [NSString stringWithFormat:@"%lu people", [self.names count]];
+    return [NSString stringWithFormat:@"%d people", [self.names count]];
 }
 
 @end

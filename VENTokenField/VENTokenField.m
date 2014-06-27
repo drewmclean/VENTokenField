@@ -21,7 +21,6 @@
 // THE SOFTWARE.
 
 #import "VENTokenField.h"
-
 #import "VENToken.h"
 #import "VENBackspaceTextField.h"
 
@@ -99,8 +98,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     [self.collapsedLabel removeFromSuperview];
     self.scrollView.hidden = YES;
-    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.originalHeight);
-
+    [self setFrame:CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.originalHeight)];
+    
     CGFloat currentX = 0;
 
     [self layoutToLabelInView:self origin:CGPointMake(self.horizontalInset, self.verticalInset) currentX:&currentX];
@@ -182,6 +181,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)layoutCollapsedLabelWithCurrentX:(CGFloat *)currentX
 {
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(*currentX, CGRectGetMinY(self.toLabel.frame), self.frame.size.width - *currentX - self.horizontalInset, self.toLabel.frame.size.height)];
+    
     label.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
     label.text = [self collapsedText];
     label.textColor = self.colorScheme;
@@ -195,7 +195,10 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     [self.toLabel removeFromSuperview];
     self.toLabel = [self toLabel];
-    self.toLabel.frame = CGRectMake(origin.x, origin.y, self.toLabel.frame.size.width, self.toLabel.frame.size.height);
+    self.toLabel.frame = CGRectMake(origin.x,
+                                    origin.y,
+                                    self.toLabel.frame.size.width,
+                                    self.toLabel.frame.size.height);
     [view addSubview:self.toLabel];
     *currentX += self.toLabel.hidden ? CGRectGetMinX(self.toLabel.frame) : CGRectGetMaxX(self.toLabel.frame) + VENTokenFieldDefaultToLabelPadding;
 }
@@ -216,7 +219,10 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         [self.tokens addObject:token];
 
         if (*currentX + token.frame.size.width <= self.scrollView.contentSize.width) { // token fits in current line
-            token.frame = CGRectMake(*currentX, *currentY, token.frame.size.width, token.frame.size.height);
+            token.frame = CGRectMake(*currentX,
+                                     *currentY,
+                                     token.frame.size.width,
+                                     token.frame.size.height);
         } else {
             *currentY += token.frame.size.height;
             *currentX = 0;
@@ -254,9 +260,10 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         _toLabel.textColor = self.toLabelTextColor;
         _toLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
         _toLabel.text = NSLocalizedString(@"To:", nil);
-        _toLabel.x = 0;
+//        _toLabel.x = 0;
         [_toLabel sizeToFit];
-        [_toLabel setHeight:[self heightForToken]];
+//        [_toLabel setHeight:[self heightForToken]];
+        [_toLabel setFrame:CGRectMake(_toLabel.frame.origin.x, _toLabel.frame.origin.y, _toLabel.frame.size.width, [self heightForToken])];
     }
     return _toLabel;
 }
@@ -265,15 +272,28 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     if (currentY + [self heightForToken] > CGRectGetHeight(self.frame)) { // needs to grow
         if (currentY + [self heightForToken] <= self.maxHeight) {
-            [self setHeight:currentY + [self heightForToken]];
+            self.frame = CGRectMake(self.frame.origin.x,
+                                    self.frame.origin.y,
+                                    self.frame.size.width,
+                                    currentY + [self heightForToken]);
+
         } else {
-            [self setHeight:self.maxHeight];
+            self.frame = CGRectMake(self.frame.origin.x,
+                                    self.frame.origin.y,
+                                    self.frame.size.width,
+                                    self.maxHeight);
         }
     } else { // needs to shrink
         if (currentY + [self heightForToken] > self.originalHeight) {
-            [self setHeight:currentY + [self heightForToken]];
+            self.frame = CGRectMake(self.frame.origin.x,
+                                    self.frame.origin.y,
+                                    self.frame.size.width,
+                                    currentY + [self heightForToken]);
         } else {
-            [self setHeight:self.originalHeight];
+            self.frame = CGRectMake(self.frame.origin.x,
+                                    self.frame.origin.y,
+                                    self.frame.size.width,
+                                    self.originalHeight);
         }
     }
 }
