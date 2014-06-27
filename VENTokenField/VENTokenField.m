@@ -22,7 +22,6 @@
 
 #import "VENTokenField.h"
 
-#import <FrameAccessor/FrameAccessor.h>
 #import "VENToken.h"
 #import "VENBackspaceTextField.h"
 
@@ -100,7 +99,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     [self.collapsedLabel removeFromSuperview];
     self.scrollView.hidden = YES;
-    [self setHeight:self.originalHeight];
+    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.originalHeight);
 
     CGFloat currentX = 0;
 
@@ -182,7 +181,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (void)layoutCollapsedLabelWithCurrentX:(CGFloat *)currentX
 {
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(*currentX, CGRectGetMinY(self.toLabel.frame), self.width - *currentX - self.horizontalInset, self.toLabel.height)];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(*currentX, CGRectGetMinY(self.toLabel.frame), self.frame.size.width - *currentX - self.horizontalInset, self.toLabel.frame.size.height)];
     label.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
     label.text = [self collapsedText];
     label.textColor = self.colorScheme;
@@ -196,7 +195,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     [self.toLabel removeFromSuperview];
     self.toLabel = [self toLabel];
-    self.toLabel.origin = origin;
+    self.toLabel.frame = CGRectMake(origin.x, origin.y, self.toLabel.frame.size.width, self.toLabel.frame.size.height);
     [view addSubview:self.toLabel];
     *currentX += self.toLabel.hidden ? CGRectGetMinX(self.toLabel.frame) : CGRectGetMaxX(self.toLabel.frame) + VENTokenFieldDefaultToLabelPadding;
 }
@@ -216,18 +215,18 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         [token setTitleText:[NSString stringWithFormat:@"%@,", title]];
         [self.tokens addObject:token];
 
-        if (*currentX + token.width <= self.scrollView.contentSize.width) { // token fits in current line
-            token.frame = CGRectMake(*currentX, *currentY, token.width, token.height);
+        if (*currentX + token.frame.size.width <= self.scrollView.contentSize.width) { // token fits in current line
+            token.frame = CGRectMake(*currentX, *currentY, token.frame.size.width, token.frame.size.height);
         } else {
-            *currentY += token.height;
+            *currentY += token.frame.size.height;
             *currentX = 0;
-            CGFloat tokenWidth = token.width;
+            CGFloat tokenWidth = token.frame.size.width;
             if (tokenWidth > self.scrollView.contentSize.width) { // token is wider than max width
                 tokenWidth = self.scrollView.contentSize.width;
             }
-            token.frame = CGRectMake(*currentX, *currentY, tokenWidth, token.height);
+            token.frame = CGRectMake(*currentX, *currentY, tokenWidth, token.frame.size.height);
         }
-        *currentX += token.width + self.tokenPadding;
+        *currentX += token.frame.size.width + self.tokenPadding;
         [self.scrollView addSubview:token];
     }
 }
