@@ -31,7 +31,6 @@ static const CGFloat VENTokenFieldDefaultTokenPadding       = 2.0;
 static const CGFloat VENTokenFieldDefaultMinInputWidth      = 80.0;
 static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
-
 @interface VENTokenField () <VENBackspaceTextFieldDelegate>
 
 @property (strong, nonatomic) UIScrollView *scrollView;
@@ -44,7 +43,6 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 @property (strong, nonatomic) UILabel *collapsedLabel;
 
 @end
-
 
 @implementation VENTokenField
 
@@ -83,7 +81,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     self.minInputWidth = VENTokenFieldDefaultMinInputWidth;
     self.colorScheme = [UIColor blueColor];
     self.toLabelTextColor = [UIColor colorWithRed:112/255.0f green:124/255.0f blue:124/255.0f alpha:1.0f];
-    self.inputTextFieldTextColor = [UIColor colorWithRed:38/255.0f green:39/255.0f blue:41/255.0f alpha:1.0f];
+    self.inputTextFieldTextColor = [UIColor darkTextColor];
 
     self.originalHeight = CGRectGetHeight(self.frame);
 
@@ -425,8 +423,16 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    [self unhighlightAllTokens];
-    return YES;
+    // Finish tag if they hit space
+    if ([string isEqualToString:@" "]) {
+        if ([self.delegate respondsToSelector:@selector(tokenField:didEnterSpace:)]) {
+            [self.delegate tokenField:self didEnterSpace:textField.text];
+        }
+        return NO;
+    } else {
+        [self unhighlightAllTokens];
+        return YES;
+    }
 }
 
 
