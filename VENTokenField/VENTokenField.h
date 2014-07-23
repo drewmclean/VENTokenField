@@ -47,7 +47,6 @@
 - (void)reloadData;
 - (void)collapse;
 
-
 /**-----------------------------------------------------------------------------
  * @name Customization
  * -----------------------------------------------------------------------------
@@ -63,6 +62,7 @@
 @property (strong, nonatomic) UIColor *inputTextFieldTextColor;
 
 @property (strong, nonatomic) UILabel *toLabel;
+@property (strong, nonatomic) UIImageView *leftImageView;
 
 - (void)setColorScheme:(UIColor *)color;
 

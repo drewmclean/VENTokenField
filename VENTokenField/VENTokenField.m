@@ -103,6 +103,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     CGFloat currentX = 0;
 
     [self layoutToLabelInView:self origin:CGPointMake(self.horizontalInset, self.verticalInset) currentX:&currentX];
+    
+    
     [self layoutCollapsedLabelWithCurrentX:&currentX];
 
     self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
@@ -123,6 +125,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     CGFloat currentY = 0;
 
     [self layoutToLabelInView:self.scrollView origin:CGPointZero currentX:&currentX];
+    [self layoutLeftImageViewRelativeToToLabel:self.scrollView toLabel:self.toLabel];
     [self layoutTokensWithCurrentX:&currentX currentY:&currentY];
     [self layoutInputTextFieldWithCurrentX:&currentX currentY:&currentY];
 
@@ -173,6 +176,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
     VENBackspaceTextField *inputTextField = self.inputTextField;
     inputTextField.text = @"";
+    inputTextField.returnKeyType = UIReturnKeyDone;
+    inputTextField.autocapitalizationType = UITextAutocapitalizationTypeNone;
     inputTextField.frame = CGRectMake(*currentX, *currentY + 1, inputTextFieldWidth, [self heightForToken] - 1);
     inputTextField.tintColor = self.colorScheme;
     [self.scrollView addSubview:inputTextField];
@@ -181,7 +186,6 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)layoutCollapsedLabelWithCurrentX:(CGFloat *)currentX
 {
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(*currentX, CGRectGetMinY(self.toLabel.frame), self.frame.size.width - *currentX - self.horizontalInset, self.toLabel.frame.size.height)];
-    
     label.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
     label.text = [self collapsedText];
     label.textColor = self.colorScheme;
@@ -197,10 +201,17 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     self.toLabel = [self toLabel];
     self.toLabel.frame = CGRectMake(origin.x,
                                     origin.y,
-                                    self.toLabel.frame.size.width,
+                                    20,
                                     self.toLabel.frame.size.height);
     [view addSubview:self.toLabel];
     *currentX += self.toLabel.hidden ? CGRectGetMinX(self.toLabel.frame) : CGRectGetMaxX(self.toLabel.frame) + VENTokenFieldDefaultToLabelPadding;
+}
+
+- (void)layoutLeftImageViewRelativeToToLabel:(UIView *)view toLabel:(UILabel*)toLabel
+{
+    self.leftImageView = [self leftImageView];
+    [view insertSubview:self.leftImageView aboveSubview:toLabel];
+    self.leftImageView.frame = toLabel.frame;
 }
 
 - (void)layoutTokensWithCurrentX:(CGFloat *)currentX currentY:(CGFloat *)currentY
@@ -214,7 +225,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         token.didTapTokenBlock = ^{
             [self didTapToken:weakToken];
         };
-
+        
         [token setTitleText:[NSString stringWithFormat:@"%@,", title]];
         [self.tokens addObject:token];
 
@@ -259,13 +270,24 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         _toLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         _toLabel.textColor = self.toLabelTextColor;
         _toLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
-        _toLabel.text = NSLocalizedString(@"To:", nil);
+        _toLabel.text = NSLocalizedString(@"   ", nil);
 //        _toLabel.x = 0;
         [_toLabel sizeToFit];
 //        [_toLabel setHeight:[self heightForToken]];
         [_toLabel setFrame:CGRectMake(_toLabel.frame.origin.x, _toLabel.frame.origin.y, _toLabel.frame.size.width, [self heightForToken])];
     }
     return _toLabel;
+}
+
+- (UIImageView*)leftImageView
+{
+    if (!_leftImageView) {
+        _leftImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Create/tag.png"]];
+        _leftImageView.contentMode = UIViewContentModeLeft;
+        _leftImageView.backgroundColor = [UIColor clearColor];
+        _leftImageView.clipsToBounds = NO;
+    }
+    return _leftImageView;
 }
 
 - (void)adjustHeightForCurrentY:(CGFloat)currentY
@@ -358,7 +380,6 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     }
 }
 
-
 #pragma mark - Data Source
 
 - (NSString *)titleForTokenAtIndex:(NSUInteger)index
@@ -385,15 +406,12 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     return @"";
 }
 
-
 #pragma mark - UITextFieldDelegate
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     if ([self.delegate respondsToSelector:@selector(tokenField:didEnterText:)]) {
-        if ([textField.text length]) {
-            [self.delegate tokenField:self didEnterText:textField.text];
-        }
+        [self.delegate tokenField:self didEnterText:textField.text];
     }
     return NO;
 }

@@ -44,7 +44,7 @@
     self.backgroundView.layer.cornerRadius = 5;
     self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapToken:)];
     self.colorScheme = [UIColor blueColor];
-    self.titleLabel.textColor = self.colorScheme;
+    self.titleLabel.textColor = [UIColor darkTextColor];
     [self addGestureRecognizer:self.tapGestureRecognizer];
 }
 
